@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Money Pro - All-in-One</title>
+    <title>Money Pro Analytics</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%235F7444%22 rx=%2220%22/><text y=%22.75em%22 x=%225%22 font-size=%2270%22>💰</text></svg>">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root { --bg: #FDFBF0; --primary: #5F7444; --accent: #E9967A; --text: #4A4A4A; }
         body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; transition: all 0.3s ease; }
@@ -51,14 +56,13 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold opacity-40 uppercase" data-k="setBud">งบรายเดือน</label>
-                    <input type="number" id="confB" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold text-sm">
+                    <input type="number" id="confB" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold opacity-40 uppercase" data-k="setGoal">เป้าหมายเงินเก็บ</label>
-                    <input type="number" id="confG" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold text-sm">
+                    <input type="number" id="confG" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold">
                 </div>
             </div>
-            
             <button onclick="saveConf()" class="w-full py-4 bg-stone-800 text-white rounded-2xl font-bold" data-k="save">บันทึก</button>
         </div>
     </div>
@@ -80,7 +84,7 @@
                         <p id="monthExTotal" class="text-lg font-bold text-rose-600">฿0</p>
                     </div>
                 </div>
-                <div class="h-64 w-full"><canvas id="reportBarChart"></canvas></div>
+                <div class="h-64"><canvas id="reportBarChart"></canvas></div>
                 <div class="grid grid-cols-1 gap-4">
                     <div class="space-y-2">
                         <p class="text-[10px] font-bold text-rose-500 uppercase px-1">🔝 TOP EXPENSES</p>
@@ -102,7 +106,7 @@
 
     <div id="pW" class="p-5 space-y-5">
         <div class="flex justify-between items-center">
-            <button onclick="openReport()" class="px-4 py-2 bg-white rounded-full shadow-sm font-bold text-[10px] flex items-center gap-2 border border-black/5">📊 ANALYTICS</button>
+            <button onclick="openReport()" class="px-4 py-2 bg-white rounded-full shadow-sm font-bold text-[10px] border border-black/5">📊 ANALYTICS</button>
             <h1 id="uN" contenteditable="true" onblur="sU()" class="text-lg font-bold outline-none">My Wallet</h1>
             <button onclick="toggleModal('setModal', true)" class="w-10 h-10 bg-white rounded-full shadow-sm text-lg flex items-center justify-center">⚙️</button>
         </div>
@@ -125,7 +129,7 @@
 
         <div id="sList" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
 
-        <div class="card p-6 space-y-4 shadow-lg border-t-4" id="inputBox" style="border-top-color: var(--primary)">
+        <div class="card p-6 space-y-4 shadow-lg border-t-4" id="inputBox">
             <div class="flex gap-2 p-1 bg-black/5 rounded-2xl">
                 <button onclick="setT('income')" id="bI" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all" data-k="income">รายรับ</button>
                 <button onclick="setT('expense')" id="bE" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all" data-k="expense">รายจ่าย</button>
@@ -135,7 +139,7 @@
                 <input type="number" id="amt" placeholder="0.00" class="p-3 bg-black/5 rounded-xl font-bold outline-none">
             </div>
             <input type="text" id="nt" class="w-full p-4 bg-black/5 rounded-xl text-sm outline-none">
-            <button onclick="addD()" id="sv" class="w-full py-4 text-white rounded-2xl font-bold shadow-lg" style="background: var(--primary)" data-k="save">บันทึก</button>
+            <button onclick="addD()" id="sv" class="w-full py-4 text-white rounded-2xl font-bold shadow-lg" data-k="save">บันทึก</button>
         </div>
 
         <div id="hList" class="space-y-3 pb-10"></div>
@@ -197,15 +201,10 @@
             setT(curT);
         }
 
-        function setLang(l) {
-            conf.lang = l;
-            updateUI();
-        }
+        function setLang(l) { conf.lang = l; updateUI(); }
 
         function updateUI() {
-            document.querySelectorAll('[data-k]').forEach(el => {
-                el.innerText = lang[conf.lang][el.getAttribute('data-k')];
-            });
+            document.querySelectorAll('[data-k]').forEach(el => { el.innerText = lang[conf.lang][el.getAttribute('data-k')]; });
             document.getElementById('nt').placeholder = lang[conf.lang].note;
             document.getElementById('lTH').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'th' ? 'bg-stone-800 text-white' : 'bg-white'}`;
             document.getElementById('lEN').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'en' ? 'bg-stone-800 text-white' : 'bg-white'}`;
@@ -240,13 +239,11 @@
             const a = parseFloat(document.getElementById('amt').value);
             const n = document.getElementById('nt').value.trim();
             if(!a || !n) return;
-
             if(!shorts[curT].includes(n)) {
                 shorts[curT].unshift(n);
                 if(shorts[curT].length > 6) shorts[curT].pop();
                 localStorage.setItem('atp_shorts', JSON.stringify(shorts));
             }
-
             recs.unshift({ type: curT, amount: a, note: n, date: document.getElementById('rD').value || new Date().toISOString().split('T')[0] });
             localStorage.setItem('atp_recs', JSON.stringify(recs));
             document.getElementById('amt').value = ''; document.getElementById('nt').value = '';
@@ -256,13 +253,11 @@
         function renderW() {
             let total = 0, monthlyExp = 0, thisM = new Date().getMonth();
             const list = document.getElementById('hList'); list.innerHTML = '';
-            
             recs.forEach((r, i) => {
                 total += (r.type === 'income' ? r.amount : -r.amount);
                 if(r.type === 'expense' && new Date(r.date).getMonth() === thisM) monthlyExp += r.amount;
                 list.innerHTML += `<div class="card p-5 flex justify-between items-center shadow-sm border-r-4 ${r.type==='income'?'border-emerald-400':'border-rose-400'}"><div class="flex flex-col"><span class="text-xs font-bold">${r.note}</span><span class="text-[9px] opacity-30 mt-1">${r.date}</span></div><div class="flex items-center gap-4"><span class="font-bold text-sm ${r.type==='income'?'text-emerald-500':'text-rose-500'}">${r.type==='income'?'+':'-'}${r.amount.toLocaleString()}</span><button onclick="delR(${i})" class="text-stone-200">✕</button></div></div>`;
             });
-
             document.getElementById('total').innerText = '฿' + total.toLocaleString();
             const pct = (monthlyExp / conf.budget) * 100;
             const fill = document.getElementById('bF');
@@ -270,12 +265,10 @@
             document.getElementById('spendLabel').innerText = `Used: ฿${monthlyExp.toLocaleString()}`;
             document.getElementById('budgetLabel').innerText = `Limit: ฿${conf.budget.toLocaleString()}`;
             fill.style.width = Math.min(pct, 100) + '%';
-            
             if(pct <= 60) fill.style.backgroundColor = '#10B981';
             else if(pct <= 75) fill.style.backgroundColor = '#FBBF24';
             else if(pct <= 90) fill.style.backgroundColor = '#F97316';
             else fill.style.backgroundColor = '#EF4444';
-
             renderShorts();
         }
 
@@ -322,7 +315,15 @@
                     <input type="number" onchange="upP('${k}',this.value)" value="${port[k]}" class="text-right font-bold w-1/2 outline-none">
                 </div>
             `).join('');
-            document.getElementById('phList').innerHTML = phist.map((h, i) => `<div class="card p-4 flex justify-between items-center text-xs"><span>${h.date}</span><div class="flex items-center gap-4"><b>฿${h.total.toLocaleString()}</b><button onclick="delPH(${i})" class="text-stone-200">✕</button></div></div>`).join('');
+            document.getElementById('phList').innerHTML = phist.map((h, i) => {
+                const prev = phist[i+1];
+                let diff = '';
+                if(prev) {
+                    const pct = ((h.total - prev.total) / prev.total) * 100;
+                    diff = `<span class="text-[9px] ${pct >= 0 ? 'text-emerald-500' : 'text-rose-500'}">(${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)</span>`;
+                }
+                return `<div class="card p-4 flex justify-between items-center text-xs"><span>${h.date}</span><div class="flex items-center gap-3">${diff}<b>฿${h.total.toLocaleString()}</b><button onclick="delPH(${i})" class="text-stone-200">✕</button></div></div>`
+            }).join('');
         }
 
         function renderPC() {
@@ -339,20 +340,17 @@
             if(p === 'p') { renderP(); renderPC(); }
         }
 
-        function delR(i) { if(confirm('ลบ?')) { recs.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(recs)); renderW(); } }
-        function delPH(i) { if(confirm('ลบ?')) { phist.splice(i, 1); localStorage.setItem('atp_hist', JSON.stringify(phist)); renderP(); } }
+        function delR(i) { if(confirm('ลบรายการนี้?')) { recs.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(recs)); renderW(); } }
+        function delPH(i) { if(confirm('ลบประวัตินี้?')) { phist.splice(i, 1); localStorage.setItem('atp_hist', JSON.stringify(phist)); renderP(); } }
         function upP(k, v) { port[k] = parseFloat(v) || 0; localStorage.setItem('atp_port', JSON.stringify(port)); renderP(); renderPC(); }
         function snap() { phist.unshift({ date: new Date().toLocaleDateString(), total: Object.values(port).reduce((a, b) => a + b, 0) }); localStorage.setItem('atp_hist', JSON.stringify(phist)); renderP(); }
         function sU() { localStorage.setItem('atp_usr', document.getElementById('uN').innerText); }
 
-        // Initial Boot
         document.getElementById('rD').valueAsDate = new Date();
         document.getElementById('confB').value = conf.budget;
         document.getElementById('confG').value = conf.goal;
         document.getElementById('uN').innerText = localStorage.getItem('atp_usr') || 'My Wallet';
-        setTheme(conf.theme);
-        updateUI();
-        renderW();
+        setTheme(conf.theme); updateUI(); renderW();
     </script>
 </body>
 </html>
