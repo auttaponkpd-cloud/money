@@ -16,9 +16,9 @@
         .tab-active { color: var(--primary); border-bottom: 3px solid var(--primary); }
         .btn-period { padding: 4px 12px; font-size: 10px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); color: #9ca3af; }
         .btn-period.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .theme-dot { width: 40px; height: 40px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .theme-dot:active { transform: scale(0.9); }
-        input, button { font-family: 'Prompt', sans-serif; }
+        .theme-dot { width: 40px; height: 40px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .shortcut-btn { padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 600; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s; }
+        .shortcut-btn:active { transform: scale(0.95); background: var(--primary); color: white; }
         .progress-bar { height: 8px; border-radius: 10px; background: rgba(0,0,0,0.05); overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
@@ -27,16 +27,17 @@
 
     <div id="themeModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-6 backdrop-blur-md">
         <div class="card w-full max-w-xs p-8 space-y-6 text-center shadow-2xl">
-            <h3 class="font-semibold text-lg">เลือกโทนสีแอป</h3>
+            <h3 class="font-semibold text-lg" data-key="chooseTheme">เลือกโทนสีแอป</h3>
             <div class="grid grid-cols-3 gap-6 justify-items-center">
-                <div onclick="setTheme('lemon')" class="theme-dot" style="background: #A1C298;" title="Lemon Green"></div>
-                <div onclick="setTheme('sakura')" class="theme-dot" style="background: #F8BBD0;" title="Sakura Pink"></div>
-                <div onclick="setTheme('sea')" class="theme-dot" style="background: #B9EDDD;" title="Sea Breeze"></div>
-                <div onclick="setTheme('ocean')" class="theme-dot" style="background: #297376;" title="Deep Ocean"></div>
-                <div onclick="setTheme('midnight')" class="theme-dot" style="background: #013137;" title="Midnight"></div>
-                <div onclick="setTheme('classic')" class="theme-dot" style="background: #5F7444;" title="Classic Green"></div>
+                <div onclick="setTheme('lemon')" class="theme-dot" style="background: #A1C298;"></div>
+                <div onclick="setTheme('sakura')" class="theme-dot" style="background: #F8BBD0;"></div>
+                <div onclick="setTheme('sea')" class="theme-dot" style="background: #B9EDDD;"></div>
+                <div onclick="setTheme('ocean')" class="theme-dot" style="background: #297376;"></div>
+                <div onclick="setTheme('midnight')" class="theme-dot" style="background: #013137;"></div>
+                <div onclick="setTheme('classic')" class="theme-dot" style="background: #5F7444;"></div>
             </div>
-            <button onclick="toggleThemeModal(false)" class="text-sm font-medium opacity-50 hover:opacity-100 transition-opacity">ปิดหน้าต่าง</button>
+            <hr class="opacity-10">
+            <button onclick="toggleThemeModal(false)" class="text-sm font-medium opacity-50" data-key="close">ปิดหน้าต่าง</button>
         </div>
     </div>
 
@@ -47,180 +48,156 @@
 
     <div id="pageWallet" class="p-5 space-y-5">
         <div class="flex justify-between items-center">
-            <button onclick="copySummary()" class="text-xl bg-white p-2 rounded-full shadow-sm">📋</button>
+            <button onclick="toggleLang()" class="w-10 h-10 bg-white rounded-full shadow-sm font-bold text-[10px]" id="langBtn">EN</button>
             <div class="text-center">
-                <p class="text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold">Personal Finance</p>
+                <p class="text-[10px] uppercase tracking-[0.2em] opacity-40 font-bold" data-key="personalFinance">Personal Finance</p>
                 <h1 id="userName" contenteditable="true" onblur="saveUser()" class="text-lg font-semibold outline-none">My Wallet</h1>
             </div>
             <button onclick="toggleThemeModal(true)" class="text-xl bg-white p-2 rounded-full shadow-sm">🎨</button>
         </div>
 
+        <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            <button onclick="quickAdd('Food', 60)" class="shortcut-btn flex-shrink-0">🍱 <span data-key="food">ข้าว</span> (60)</button>
+            <button onclick="quickAdd('Coffee', 50)" class="shortcut-btn flex-shrink-0">☕️ <span data-key="coffee">กาแฟ</span> (50)</button>
+            <button onclick="quickAdd('Travel', 40)" class="shortcut-btn flex-shrink-0">🚗 <span data-key="travel">เดินทาง</span> (40)</button>
+            <button onclick="quickAdd('Social', 200)" class="shortcut-btn flex-shrink-0">🍻 <span data-key="social">สังสรรค์</span> (200)</button>
+        </div>
+
         <div class="card p-8 text-center shadow-sm relative overflow-hidden">
             <div id="cardDeco" class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10" style="background: var(--primary)"></div>
-            <p class="text-[11px] opacity-50 mb-1 font-medium">ยอดเงินรวมในบัญชี</p>
+            <p class="text-[11px] opacity-50 mb-1 font-medium" data-key="totalBalanceText">ยอดเงินรวมในบัญชี</p>
             <h2 id="totalBalance" class="text-4xl font-bold tracking-tight">฿0</h2>
             <div class="mt-6 px-2">
                 <div class="flex justify-between text-[10px] mb-2 font-semibold">
-                    <span class="opacity-40">งบใช้จ่ายเดือนนี้</span>
+                    <span class="opacity-40" data-key="monthlyBudget">งบใช้จ่ายเดือนนี้</span>
                     <span id="budgetPercent" class="text-stone-600">0%</span>
                 </div>
                 <div class="progress-bar"><div id="budgetFill" class="progress-fill bg-stone-800" style="width: 0%"></div></div>
             </div>
         </div>
 
-        <div class="card p-5">
-            <div class="flex justify-between items-center mb-5">
-                <span class="text-xs font-bold opacity-40 uppercase tracking-wider ml-1">สัดส่วนวันนี้</span>
-                <div class="flex gap-1 bg-black/5 p-1 rounded-full">
-                    <button onclick="changePeriod('day')" id="p-day" class="btn-period active">Today</button>
-                    <button onclick="changePeriod('month')" id="p-month" class="btn-period">Month</button>
-                </div>
-            </div>
-            <div style="height: 160px;"><canvas id="walletChart"></canvas></div>
-        </div>
-
         <div class="card p-6 space-y-4 shadow-md border-t-4" style="border-top-color: var(--primary)">
             <div class="flex gap-3 p-1.5 bg-black/5 rounded-2xl">
-                <button onclick="setType('income')" id="btnIn" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all">รายรับ</button>
-                <button onclick="setType('expense')" id="btnEx" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all">รายจ่าย</button>
+                <button onclick="setType('income')" id="btnIn" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" data-key="income">รายรับ</button>
+                <button onclick="setType('expense')" id="btnEx" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" data-key="expense">รายจ่าย</button>
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <div class="space-y-1">
-                    <label class="text-[10px] opacity-40 font-bold ml-1">วันที่</label>
-                    <input type="date" id="recordDate" class="w-full p-3 bg-black/5 rounded-xl text-[11px] outline-none border border-transparent focus:border-black/10">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] opacity-40 font-bold ml-1">จำนวนเงิน</label>
-                    <input type="number" id="amount" placeholder="0.00" class="w-full p-3 bg-black/5 rounded-xl text-sm font-bold outline-none border border-transparent focus:border-black/10">
-                </div>
+                <input type="date" id="recordDate" class="p-3 bg-black/5 rounded-xl text-[11px] outline-none">
+                <input type="number" id="amount" placeholder="0.00" class="p-3 bg-black/5 rounded-xl text-sm font-bold outline-none">
             </div>
-            <input type="text" id="note" placeholder="บันทึกรายละเอียด..." class="w-full p-4 bg-black/5 rounded-xl text-xs outline-none border border-transparent focus:border-black/10">
-            <button onclick="addData()" id="btnSave" class="w-full py-4 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all">บันทึกรายการ</button>
+            <input type="text" id="note" placeholder="บันทึกรายละเอียด..." class="w-full p-4 bg-black/5 rounded-xl text-xs outline-none" data-key="notePlaceholder">
+            <button onclick="addData()" id="btnSave" class="w-full py-4 text-white rounded-2xl font-bold text-sm shadow-lg active:scale-95 transition-all" data-key="saveBtn">บันทึกรายการ</button>
         </div>
 
         <div id="historyList" class="space-y-3 pt-2"></div>
     </div>
 
     <div id="pagePortfolio" class="p-5 hidden space-y-5">
-        <div id="portHead" class="card p-8 bg-stone-900 text-white shadow-xl relative overflow-hidden">
-            <div class="absolute right-0 top-0 p-4 opacity-10 text-4xl">📈</div>
-            <div class="text-center mb-6">
-                <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-2 font-bold">Total Net Worth</p>
-                <h3 id="netWorth" class="text-4xl font-bold">฿0</h3>
-                <div id="growthText" class="text-[11px] mt-2 font-semibold"></div>
-            </div>
-            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-                <div class="flex justify-between text-[11px] mb-2 font-bold">
-                    <span class="opacity-60">อิสรภาพทางการเงิน (1M)</span>
-                    <span id="goalPercent">0%</span>
-                </div>
-                <div class="progress-bar bg-white/10"><div id="goalFill" class="progress-fill bg-emerald-400" style="width: 0%"></div></div>
-            </div>
+        <div class="card p-8 bg-stone-900 text-white shadow-xl relative overflow-hidden text-center">
+            <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-2 font-bold" data-key="netWorthText">Total Net Worth</p>
+            <h3 id="netWorth" class="text-4xl font-bold">฿0</h3>
+            <div id="growthText" class="text-[11px] mt-2 font-semibold"></div>
         </div>
 
         <div class="card p-5">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-xs font-bold opacity-40 uppercase tracking-wider ml-1">สัดส่วนสินทรัพย์</span>
-                <span id="allocationText" class="text-[10px] font-bold text-stone-400"></span>
-            </div>
             <div style="height: 200px;"><canvas id="portChart"></canvas></div>
         </div>
 
         <div class="space-y-3">
-            <div class="card p-4 flex justify-between items-center border-l-[6px] border-emerald-500 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <span class="bg-emerald-100 p-2 rounded-lg">🟢</span>
-                    <span class="text-xs font-bold">Dime</span>
-                </div>
+            <div class="card p-4 flex justify-between items-center border-l-[6px] border-[#10B981] shadow-sm">
+                <span class="text-xs font-bold">🟢 Dime</span>
                 <input type="number" onchange="upPort('dime', this.value)" id="v-dime" class="text-right font-bold w-1/2 bg-transparent outline-none text-lg" placeholder="0">
             </div>
-            <div class="card p-4 flex justify-between items-center border-l-[6px] border-blue-600 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <span class="bg-blue-100 p-2 rounded-lg">🔵</span>
-                    <span class="text-xs font-bold">Webull</span>
-                </div>
+            <div class="card p-4 flex justify-between items-center border-l-[6px] border-[#2563EB] shadow-sm">
+                <span class="text-xs font-bold">🔵 Webull</span>
                 <input type="number" onchange="upPort('webull', this.value)" id="v-webull" class="text-right font-bold w-1/2 bg-transparent outline-none text-lg" placeholder="0">
             </div>
-            <div class="card p-4 flex justify-between items-center border-l-[6px] border-sky-400 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <span class="bg-sky-100 p-2 rounded-lg">💎</span>
-                    <span class="text-xs font-bold">P. Fund</span>
-                </div>
+            <div class="card p-4 flex justify-between items-center border-l-[6px] border-[#38BDF8] shadow-sm">
+                <span class="text-xs font-bold">💎 P. Fund</span>
                 <input type="number" onchange="upPort('pvd', this.value)" id="v-pvd" class="text-right font-bold w-1/2 bg-transparent outline-none text-lg" placeholder="0">
             </div>
-            <div class="card p-4 flex justify-between items-center border-l-[6px] border-amber-400 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <span class="bg-amber-100 p-2 rounded-lg">🟡</span>
-                    <span class="text-xs font-bold">Cash</span>
-                </div>
+            <div class="card p-4 flex justify-between items-center border-l-[6px] border-[#FBBF24] shadow-sm">
+                <span class="text-xs font-bold">🟡 Cash</span>
                 <input type="number" onchange="upPort('cash', this.value)" id="v-cash" class="text-right font-bold w-1/2 bg-transparent outline-none text-lg" placeholder="0">
             </div>
         </div>
 
-        <button onclick="snapPort()" class="w-full py-5 bg-stone-800 text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">📸 บันทึกยอดพอร์ตวันนี้</button>
-        
-        <div class="flex items-center gap-2 py-4">
-            <div class="h-[1px] flex-1 bg-stone-200"></div>
-            <span class="text-[10px] font-bold opacity-30 uppercase">History Log</span>
-            <div class="h-[1px] flex-1 bg-stone-200"></div>
-        </div>
+        <button onclick="snapPort()" class="w-full py-5 bg-stone-800 text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all" data-key="snapBtn">📸 บันทึกยอดพอร์ตวันนี้</button>
         <div id="portHistList" class="space-y-3 pb-6"></div>
     </div>
 
     <script>
+        const i18n = {
+            th: {
+                chooseTheme: 'เลือกโทนสีแอป', close: 'ปิดหน้าต่าง', personalFinance: 'การเงินส่วนบุคคล',
+                totalBalanceText: 'ยอดเงินรวมในบัญชี', monthlyBudget: 'งบใช้จ่ายเดือนนี้',
+                income: 'รายรับ', expense: 'รายจ่าย', notePlaceholder: 'บันทึกรายละเอียด...',
+                saveBtn: 'บันทึกรายการ', netWorthText: 'มูลค่าสินทรัพย์รวม',
+                snapBtn: '📸 บันทึกยอดพอร์ตวันนี้', food: 'ข้าว', coffee: 'กาแฟ', travel: 'เดินทาง', social: 'สังสรรค์'
+            },
+            en: {
+                chooseTheme: 'App Theme', close: 'Close', personalFinance: 'Personal Finance',
+                totalBalanceText: 'Total Balance', monthlyBudget: 'Monthly Budget',
+                income: 'Income', expense: 'Expense', notePlaceholder: 'Note...',
+                saveBtn: 'Save Record', netWorthText: 'Total Net Worth',
+                snapBtn: '📸 Snap Portfolio Today', food: 'Food', coffee: 'Coffee', travel: 'Travel', social: 'Social'
+            }
+        };
+
         const themes = {
             classic: { bg: '#FDFBF0', text: '#4A4A4A', primary: '#5F7444', accent: '#E9967A', dark: false },
-            lemon: { bg: '#F7FFE5', text: '#4A5D23', primary: '#A1C298', accent: '#C4D7B2', dark: false }, // From Image 2
-            sakura: { bg: '#FFF0F5', text: '#5D4037', primary: '#F8BBD0', accent: '#F48FB1', dark: false }, // From Image 1
-            sea: { bg: '#E3F4F4', text: '#2C3333', primary: '#B9EDDD', accent: '#87CBB9', dark: false },  // From Image 3
-            ocean: { bg: '#D1D9DE', text: '#1A3C40', primary: '#297376', accent: '#5C9396', dark: false }, // From Image 4
-            midnight: { bg: '#011A1D', text: '#C1D9DE', primary: '#5C9396', accent: '#013137', dark: true } // From Image 4
+            lemon: { bg: '#F7FFE5', text: '#4A5D23', primary: '#A1C298', accent: '#C4D7B2', dark: false },
+            sakura: { bg: '#FFF0F5', text: '#5D4037', primary: '#F8BBD0', accent: '#F48FB1', dark: false },
+            sea: { bg: '#E3F4F4', text: '#2C3333', primary: '#B9EDDD', accent: '#87CBB9', dark: false },
+            ocean: { bg: '#D1D9DE', text: '#1A3C40', primary: '#297376', accent: '#5C9396', dark: false },
+            midnight: { bg: '#011A1D', text: '#C1D9DE', primary: '#5C9396', accent: '#013137', dark: true }
         };
 
         let records = JSON.parse(localStorage.getItem('atp_recs')) || [];
         let port = JSON.parse(localStorage.getItem('atp_port')) || {dime:0, webull:0, pvd:0, cash:0};
         let pHist = JSON.parse(localStorage.getItem('atp_hist')) || [];
         let cTheme = localStorage.getItem('atp_thm') || 'classic';
-        let wChart, pChart, cType = 'income', cPeriod = 'day';
-        const GOAL_AMOUNT = 1000000;
-        const MONTHLY_BUDGET = 20000;
+        let cLang = localStorage.getItem('atp_lang') || 'th';
+        let pChart, cType = 'income';
+
+        function toggleLang() {
+            cLang = cLang === 'th' ? 'en' : 'th';
+            localStorage.setItem('atp_lang', cLang);
+            updateLanguageUI();
+        }
+
+        function updateLanguageUI() {
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                el.innerText = i18n[cLang][key];
+            });
+            document.getElementById('langBtn').innerText = cLang === 'th' ? 'EN' : 'TH';
+            renderWallet();
+        }
 
         function setTheme(t) {
             cTheme = t; localStorage.setItem('atp_thm', t);
             const th = themes[t];
             document.documentElement.style.setProperty('--bg', th.bg);
-            document.documentElement.style.setProperty('--text', th.text);
             document.documentElement.style.setProperty('--primary', th.primary);
-            document.documentElement.style.setProperty('--accent', th.accent);
             document.body.style.backgroundColor = th.bg;
             document.body.style.color = th.text;
             document.getElementById('btnSave').style.background = th.primary;
-            document.getElementById('themeModal').classList.add('hidden');
+            toggleThemeModal(false);
             renderWallet();
         }
 
         function toggleThemeModal(s) { document.getElementById('themeModal').classList.toggle('hidden', !s); }
-        function saveUser() { localStorage.setItem('atp_usr', document.getElementById('userName').innerText); }
-        
-        function showPage(p) {
-            document.getElementById('pageWallet').classList.toggle('hidden', p !== 'wallet');
-            document.getElementById('pagePortfolio').classList.toggle('hidden', p !== 'portfolio');
-            document.getElementById('tabWallet').className = `py-4 px-10 font-bold ${p === 'wallet' ? 'tab-active' : 'text-stone-400'}`;
-            document.getElementById('tabPortfolio').className = `py-4 px-10 font-bold ${p === 'portfolio' ? 'tab-active' : 'text-stone-400'}`;
-            if(p === 'portfolio') { renderPort(); renderPortChart(); }
-        }
 
-        function setType(t) {
-            cType = t; const th = themes[cTheme];
-            document.getElementById('btnIn').style.background = t === 'income' ? th.primary : 'transparent';
-            document.getElementById('btnIn').style.color = t === 'income' ? (th.dark ? '#000' : '#fff') : '#9ca3af';
-            document.getElementById('btnEx').style.background = t === 'expense' ? th.accent : 'transparent';
-            document.getElementById('btnEx').style.color = t === 'expense' ? '#fff' : '#9ca3af';
+        function quickAdd(note, amt) {
+            records.unshift({ type: 'expense', amount: amt, note: i18n[cLang][note.toLowerCase()] || note, date: new Date().toISOString().split('T')[0] });
+            localStorage.setItem('atp_recs', JSON.stringify(records));
+            renderWallet();
         }
 
         function addData() {
             const amt = document.getElementById('amount').value; if(!amt) return;
-            records.unshift({ type: cType, amount: parseFloat(amt), note: document.getElementById('note').value || (cType === 'income' ? 'รายรับ' : 'รายจ่าย'), date: document.getElementById('recordDate').value || new Date().toISOString().split('T')[0] });
+            records.unshift({ type: cType, amount: parseFloat(amt), note: document.getElementById('note').value || (cType === 'income' ? 'Income' : 'Expense'), date: document.getElementById('recordDate').value || new Date().toISOString().split('T')[0] });
             localStorage.setItem('atp_recs', JSON.stringify(records));
             renderWallet(); document.getElementById('amount').value = ''; document.getElementById('note').value = '';
         }
@@ -231,75 +208,60 @@
             records.forEach((r, i) => {
                 total += (r.type === 'income' ? r.amount : -r.amount);
                 if(r.type === 'expense' && new Date(r.date).getMonth() === thisMonth) monthlyExp += r.amount;
-                list.innerHTML += `<div class="card p-5 flex justify-between items-center bg-white shadow-sm border-r-4 ${r.type==='income'?'border-emerald-400':'border-rose-400'}"><div class="flex flex-col"><span class="text-xs font-bold">${r.note}</span><span class="text-[9px] opacity-30 font-semibold mt-1">${r.date}</span></div><div class="flex items-center gap-4"><span class="font-bold text-sm ${r.type==='income'?'text-emerald-500':'text-rose-500'}">${r.type==='income'?'+':'-'}${r.amount.toLocaleString()}</span><button onclick="delRec(${i})" class="text-stone-200 hover:text-rose-500 transition-colors">✕</button></div></div>`;
+                list.innerHTML += `<div class="card p-5 flex justify-between items-center shadow-sm border-r-4 ${r.type==='income'?'border-emerald-400':'border-rose-400'}"><div class="flex flex-col"><span class="text-xs font-bold">${r.note}</span><span class="text-[9px] opacity-30 mt-1">${r.date}</span></div><div class="flex items-center gap-4"><span class="font-bold text-sm ${r.type==='income'?'text-emerald-500':'text-rose-500'}">${r.type==='income'?'+':'-'}${r.amount.toLocaleString()}</span><button onclick="delRec(${i})" class="text-stone-200">✕</button></div></div>`;
             });
             document.getElementById('totalBalance').innerText = '฿' + total.toLocaleString();
-            const bPct = Math.min((monthlyExp / MONTHLY_BUDGET) * 100, 100).toFixed(0);
+            const bPct = Math.min((monthlyExp / 20000) * 100, 100).toFixed(0);
             document.getElementById('budgetPercent').innerText = bPct + '%';
             document.getElementById('budgetFill').style.width = bPct + '%';
-            updateWChart(); setType(cType);
+            setType(cType);
         }
 
-        function delRec(i) { if(confirm('ลบรายการนี้?')) { records.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(records)); renderWallet(); } }
+        function delRec(i) { records.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(records)); renderWallet(); }
 
-        function updateWChart() {
-            const ctx = document.getElementById('walletChart').getContext('2d');
-            const now = new Date().toISOString().split('T')[0];
-            const thisMonth = new Date().getMonth();
-            let filt = records.filter(r => cPeriod === 'day' ? r.date === now : new Date(r.date).getMonth() === thisMonth);
-            const inc = filt.filter(r => r.type === 'income').reduce((s, r) => s + r.amount, 0);
-            const exp = filt.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0);
-            if (wChart) wChart.destroy();
-            wChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['รับ', 'จ่าย'], datasets: [{ data: [inc || 0.1, exp || 0], backgroundColor: [themes[cTheme].primary, themes[cTheme].accent], borderWidth: 0, hoverOffset: 4 }] }, options: { cutout: '75%', maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        function upPort(k, v) { port[k] = parseFloat(v) || 0; localStorage.setItem('atp_port', JSON.stringify(port)); renderPortChart(); renderPort(); }
+
+        function snapPort() {
+            const net = Object.values(port).reduce((a, b) => a + b, 0);
+            pHist.unshift({ date: new Date().toLocaleDateString(), total: net });
+            localStorage.setItem('atp_hist', JSON.stringify(pHist)); renderPort();
         }
-
-        function changePeriod(p) { cPeriod = p; document.querySelectorAll('.btn-period').forEach(b => b.classList.remove('active')); document.getElementById('p-'+p).classList.add('active'); updateWChart(); }
-
-        function upPort(k, v) { port[k] = parseFloat(v) || 0; localStorage.setItem('atp_port', JSON.stringify(port)); renderPort(); renderPortChart(); }
 
         function renderPort() {
             const net = Object.values(port).reduce((a, b) => a + b, 0);
             document.getElementById('netWorth').innerText = '฿' + net.toLocaleString();
-            const gPct = Math.min((net / GOAL_AMOUNT) * 100, 100).toFixed(1);
-            document.getElementById('goalPercent').innerText = gPct + '%';
-            document.getElementById('goalFill').style.width = gPct + '%';
-            const invest = (port.dime || 0) + (port.webull || 0) + (port.pvd || 0);
-            document.getElementById('allocationText').innerText = `Invest ${net > 0 ? ((invest/net)*100).toFixed(0) : 0}% | Cash ${net > 0 ? ((port.cash/net)*100).toFixed(0) : 0}%`;
-            
-            if(pHist.length > 0) {
-                const diff = (((net - pHist[0].total) / (pHist[0].total || 1)) * 100).toFixed(1);
-                document.getElementById('growthText').innerText = `${diff >= 0 ? '↗️ เพิ่มขึ้น' : '↘️ ลดลง'} ${Math.abs(diff)}% จากครั้งก่อน`;
+            if(pHist.length > 1) {
+                const diff = (((net - pHist[1].total) / pHist[1].total) * 100).toFixed(1);
+                document.getElementById('growthText').innerText = `${diff >= 0 ? '↗' : '↘'} ${Math.abs(diff)}% vs last`;
                 document.getElementById('growthText').className = `text-[11px] mt-2 font-bold ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
             }
-            ['dime','webull','pvd','cash'].forEach(k => document.getElementById('v-'+k).value = port[k] || '');
-            document.getElementById('portHistList').innerHTML = pHist.map((h, i) => {
-                return `<div class="card p-4 flex justify-between items-center bg-white shadow-sm border-r-4 border-stone-800"><div class="flex flex-col"><span class="text-[10px] opacity-40 font-bold uppercase">${h.date}</span><span class="text-sm font-bold mt-1">฿${h.total.toLocaleString()}</span></div><button onclick="delPort(${i})" class="text-stone-200">✕</button></div>`;
-            }).join('');
+            document.getElementById('portHistList').innerHTML = pHist.map((h, i) => `<div class="card p-4 flex justify-between items-center text-xs"><span>${h.date}</span><div class="flex items-center gap-4"><b>฿${h.total.toLocaleString()}</b><button onclick="pHist.splice(${i},1);localStorage.setItem('atp_hist',JSON.stringify(pHist));renderPort()" class="text-stone-200">✕</button></div></div>`).join('');
         }
-
-        function snapPort() {
-            const net = Object.values(port).reduce((a, b) => a + b, 0);
-            const dateStr = new Date().toLocaleDateString('th-TH', {day:'2-digit', month:'short', year:'2-digit'});
-            pHist.unshift({ date: dateStr, total: net });
-            localStorage.setItem('atp_hist', JSON.stringify(pHist)); renderPort();
-        }
-
-        function delPort(i) { if(confirm('ลบประวัตินี้?')) { pHist.splice(i, 1); localStorage.setItem('atp_hist', JSON.stringify(pHist)); renderPort(); } }
 
         function renderPortChart() {
             const ctx = document.getElementById('portChart').getContext('2d');
             if (pChart) pChart.destroy();
-            pChart = new Chart(ctx, { type: 'pie', data: { labels: ['Dime', 'Webull', 'P.Fund', 'Cash'], datasets: [{ data: Object.values(port).map(v=>v||0.00001), backgroundColor: ['#10B981', '#2563EB', '#38BDF8', '#FBBF24'], borderWidth: 4, borderColor: '#fff' }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 20, font: { size: 10, weight: 'bold', family: 'Prompt' } } } } } });
+            pChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Dime', 'Webull', 'P.Fund', 'Cash'], datasets: [{ data: Object.values(port), backgroundColor: ['#10B981', '#2563EB', '#38BDF8', '#FBBF24'], borderWidth: 0 }] }, options: { cutout: '70%', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Prompt' } } } } } });
         }
 
-        function copySummary() {
-            const total = document.getElementById('totalBalance').innerText;
-            navigator.clipboard.writeText(`💰 สรุปยอดเงินปัจจุบัน: ${total}`).then(() => alert('คัดลอกสรุปยอดเงินแล้ว!'));
+        function setType(t) {
+            cType = t; const th = themes[cTheme];
+            document.getElementById('btnIn').style.background = t === 'income' ? th.primary : 'transparent';
+            document.getElementById('btnIn').style.color = t === 'income' ? (th.dark ? '#000' : '#fff') : '#9ca3af';
+            document.getElementById('btnEx').style.background = t === 'expense' ? th.accent : 'transparent';
+            document.getElementById('btnEx').style.color = t === 'expense' ? '#fff' : '#9ca3af';
+        }
+
+        function showPage(p) {
+            document.getElementById('pageWallet').classList.toggle('hidden', p !== 'wallet');
+            document.getElementById('pagePortfolio').classList.toggle('hidden', p !== 'portfolio');
+            document.getElementById('tabWallet').className = `py-4 px-10 font-bold ${p === 'wallet' ? 'tab-active' : 'text-stone-400'}`;
+            document.getElementById('tabPortfolio').className = `py-4 px-10 font-bold ${p === 'portfolio' ? 'tab-active' : 'text-stone-400'}`;
+            if(p === 'portfolio') { renderPort(); renderPortChart(); }
         }
 
         document.getElementById('recordDate').valueAsDate = new Date();
-        document.getElementById('userName').innerText = localStorage.getItem('atp_usr') || 'My Wallet';
-        setTheme(cTheme);
+        updateLanguageUI(); setTheme(cTheme);
     </script>
 </body>
 </html>
