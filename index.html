@@ -3,75 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Money Pro V5 - Analytics</title>
+    <title>Money Pro - All-in-One</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #FDFBF0; --primary: #5F7444; --accent: #E9967A; }
-        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); transition: all 0.3s; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #FDFBF0; --primary: #5F7444; --accent: #E9967A; --text: #4A4A4A; }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; transition: all 0.3s ease; }
         .card { background: white; border-radius: 24px; border: 1px solid rgba(0,0,0,0.05); }
         .tab-active { color: var(--primary); border-bottom: 3px solid var(--primary); }
         .shortcut-btn { padding: 8px 14px; border-radius: 12px; font-size: 11px; font-weight: 600; background: white; border: 1px solid rgba(0,0,0,0.1); white-space: nowrap; }
         .progress-bar { height: 12px; border-radius: 20px; background: rgba(0,0,0,0.05); overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.6s ease, background-color 0.4s; }
+        .theme-dot { width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-24">
 
+    <div id="setModal" class="fixed inset-0 bg-black/60 z-[120] hidden flex items-center justify-center p-6 backdrop-blur-md">
+        <div class="card w-full max-w-sm p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg" data-k="settings">ตั้งค่า</h3>
+                <button onclick="toggleModal('setModal', false)" class="text-xl">✕</button>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold opacity-40 uppercase" data-k="langTitle">ภาษา / Language</label>
+                <div class="flex gap-2">
+                    <button onclick="setLang('th')" id="lTH" class="flex-1 py-2 rounded-xl border font-bold text-xs">ไทย</button>
+                    <button onclick="setLang('en')" id="lEN" class="flex-1 py-2 rounded-xl border font-bold text-xs">EN</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-bold opacity-40 uppercase" data-k="themeTitle">ธีมสี / Theme</label>
+                <div class="grid grid-cols-6 gap-2">
+                    <div onclick="setTheme('lemon')" class="theme-dot" style="background: #A1C298;"></div>
+                    <div onclick="setTheme('sakura')" class="theme-dot" style="background: #F8BBD0;"></div>
+                    <div onclick="setTheme('sea')" class="theme-dot" style="background: #B9EDDD;"></div>
+                    <div onclick="setTheme('ocean')" class="theme-dot" style="background: #297376;"></div>
+                    <div onclick="setTheme('classic')" class="theme-dot" style="background: #5F7444;"></div>
+                    <div onclick="setTheme('midnight')" class="theme-dot" style="background: #013137;"></div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold opacity-40 uppercase" data-k="setBud">งบรายเดือน</label>
+                    <input type="number" id="confB" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold text-sm">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold opacity-40 uppercase" data-k="setGoal">เป้าหมายเงินเก็บ</label>
+                    <input type="number" id="confG" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold text-sm">
+                </div>
+            </div>
+            
+            <button onclick="saveConf()" class="w-full py-4 bg-stone-800 text-white rounded-2xl font-bold" data-k="save">บันทึก</button>
+        </div>
+    </div>
+
     <div id="reportModal" class="fixed inset-0 bg-black/60 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="card w-full max-w-md p-6 space-y-5 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center sticky top-0 bg-white pb-2 z-10">
-                <h3 class="font-bold text-lg">วิเคราะห์การเงิน (Analytics)</h3>
-                <button onclick="toggleModal('reportModal', false)" class="text-xl p-2">✕</button>
+                <h3 class="font-bold text-lg" data-k="analytics">วิเคราะห์การเงิน</h3>
+                <button onclick="toggleModal('reportModal', false)" class="text-xl">✕</button>
             </div>
-            
             <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                        <p class="text-[9px] font-bold text-emerald-700 opacity-60 uppercase">รายรับเดือนนี้</p>
+                        <p class="text-[9px] font-bold text-emerald-700 opacity-60 uppercase" data-k="monthIn">รายรับเดือนนี้</p>
                         <p id="monthInTotal" class="text-lg font-bold text-emerald-600">฿0</p>
                     </div>
                     <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                        <p class="text-[9px] font-bold text-rose-700 opacity-60 uppercase">รายจ่ายเดือนนี้</p>
+                        <p class="text-[9px] font-bold text-rose-700 opacity-60 uppercase" data-k="monthEx">รายจ่ายเดือนนี้</p>
                         <p id="monthExTotal" class="text-lg font-bold text-rose-600">฿0</p>
                     </div>
                 </div>
-
-                <div class="space-y-2">
-                    <p class="text-[10px] font-bold opacity-40 uppercase px-1">กราฟแสดงค่าใช้จ่ายสูงสุด</p>
-                    <div class="h-64 w-full">
-                        <canvas id="reportBarChart"></canvas>
-                    </div>
-                </div>
-
+                <div class="h-64 w-full"><canvas id="reportBarChart"></canvas></div>
                 <div class="grid grid-cols-1 gap-4">
                     <div class="space-y-2">
-                        <p class="text-[10px] font-bold text-rose-500 uppercase px-1">🔝 รายจ่ายที่มากที่สุด</p>
+                        <p class="text-[10px] font-bold text-rose-500 uppercase px-1">🔝 TOP EXPENSES</p>
                         <div id="topExList" class="space-y-1"></div>
                     </div>
                     <div class="space-y-2">
-                        <p class="text-[10px] font-bold text-emerald-500 uppercase px-1">🔝 รายรับที่มากที่สุด</p>
+                        <p class="text-[10px] font-bold text-emerald-500 uppercase px-1">🔝 TOP INCOME</p>
                         <div id="topInList" class="space-y-1"></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="setModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-6 backdrop-blur-md">
-        <div class="card w-full max-w-xs p-8 space-y-5 shadow-2xl">
-            <h3 class="font-bold text-center">ตั้งค่า / Settings</h3>
-            <div>
-                <label class="text-[10px] font-bold opacity-40">งบรายเดือน (Budget)</label>
-                <input type="number" id="confB" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold">
-            </div>
-            <div>
-                <label class="text-[10px] font-bold opacity-40">เป้าหมายเงินเก็บ (Goal)</label>
-                <input type="number" id="confG" class="w-full p-3 bg-black/5 rounded-xl outline-none font-bold">
-            </div>
-            <button onclick="saveConf()" class="w-full py-4 bg-stone-800 text-white rounded-2xl font-bold">บันทึกข้อมูล</button>
         </div>
     </div>
 
@@ -88,11 +108,11 @@
         </div>
 
         <div class="card p-8 text-center shadow-sm relative">
-            <p class="text-[11px] opacity-40 font-bold">ยอดเงินรวมคงเหลือ</p>
+            <p class="text-[11px] opacity-40 font-bold" data-k="totalB">ยอดเงินรวมคงเหลือ</p>
             <h2 id="total" class="text-4xl font-black tracking-tight">฿0</h2>
             <div class="mt-6">
                 <div class="flex justify-between text-[10px] mb-2 font-bold uppercase">
-                    <span class="opacity-40">Monthly Budget</span>
+                    <span class="opacity-40" data-k="budTrack">Budget Tracker</span>
                     <span id="bP">0%</span>
                 </div>
                 <div class="progress-bar"><div id="bF" class="progress-fill" style="width: 0%"></div></div>
@@ -107,15 +127,15 @@
 
         <div class="card p-6 space-y-4 shadow-lg border-t-4" id="inputBox" style="border-top-color: var(--primary)">
             <div class="flex gap-2 p-1 bg-black/5 rounded-2xl">
-                <button onclick="setT('income')" id="bI" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all">รายรับ</button>
-                <button onclick="setT('expense')" id="bE" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all">รายจ่าย</button>
+                <button onclick="setT('income')" id="bI" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all" data-k="income">รายรับ</button>
+                <button onclick="setT('expense')" id="bE" class="flex-1 py-3 rounded-xl text-xs font-bold transition-all" data-k="expense">รายจ่าย</button>
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <input type="date" id="rD" class="p-3 bg-black/5 rounded-xl text-[11px] outline-none">
                 <input type="number" id="amt" placeholder="0.00" class="p-3 bg-black/5 rounded-xl font-bold outline-none">
             </div>
-            <input type="text" id="nt" placeholder="บันทึกรายละเอียด..." class="w-full p-4 bg-black/5 rounded-xl text-sm outline-none">
-            <button onclick="addD()" id="sv" class="w-full py-4 text-white rounded-2xl font-bold shadow-lg" style="background: var(--primary)">บันทึก</button>
+            <input type="text" id="nt" class="w-full p-4 bg-black/5 rounded-xl text-sm outline-none">
+            <button onclick="addD()" id="sv" class="w-full py-4 text-white rounded-2xl font-bold shadow-lg" style="background: var(--primary)" data-k="save">บันทึก</button>
         </div>
 
         <div id="hList" class="space-y-3 pb-10"></div>
@@ -141,15 +161,55 @@
     </div>
 
     <script>
+        const themes = {
+            classic: { bg: '#FDFBF0', text: '#4A4A4A', primary: '#5F7444', accent: '#E9967A' },
+            lemon: { bg: '#F7FFE5', text: '#4A5D23', primary: '#A1C298', accent: '#C4D7B2' },
+            sakura: { bg: '#FFF0F5', text: '#5D4037', primary: '#F8BBD0', accent: '#F48FB1' },
+            sea: { bg: '#E3F4F4', text: '#2C3333', primary: '#B9EDDD', accent: '#87CBB9' },
+            ocean: { bg: '#D1D9DE', text: '#1A3C40', primary: '#297376', accent: '#5C9396' },
+            midnight: { bg: '#011A1D', text: '#C1D9DE', primary: '#5C9396', accent: '#013137' }
+        };
+
+        const lang = {
+            th: { settings: 'ตั้งค่า', langTitle: 'ภาษา', themeTitle: 'ธีมสี', setBud: 'งบรายเดือน', setGoal: 'เป้าหมายเงินเก็บ', save: 'บันทึก', analytics: 'วิเคราะห์การเงิน', monthIn: 'รายรับเดือนนี้', monthEx: 'รายจ่ายเดือนนี้', totalB: 'ยอดเงินรวมคงเหลือ', budTrack: 'การใช้จ่าย', income: 'รายรับ', expense: 'รายจ่าย', note: 'บันทึกรายละเอียด...' },
+            en: { settings: 'Settings', langTitle: 'Language', themeTitle: 'Theme', setBud: 'Monthly Budget', setGoal: 'Savings Goal', save: 'Save', analytics: 'Analytics', monthIn: 'Monthly Income', monthEx: 'Monthly Expense', totalB: 'Total Balance', budTrack: 'Spending Tracker', income: 'Income', expense: 'Expense', note: 'Note details...' }
+        };
+
         let recs = JSON.parse(localStorage.getItem('atp_recs')) || [];
         let port = JSON.parse(localStorage.getItem('atp_port')) || {dime:0, webull:0, pvd:0, cash:0};
         let phist = JSON.parse(localStorage.getItem('atp_hist')) || [];
         let shorts = JSON.parse(localStorage.getItem('atp_shorts')) || { income: [], expense: [] };
-        let conf = JSON.parse(localStorage.getItem('atp_conf')) || { budget: 20000, goal: 1000000 };
+        let conf = JSON.parse(localStorage.getItem('atp_conf')) || { budget: 20000, goal: 1000000, theme: 'classic', lang: 'th' };
         let curT = 'expense';
         let myChart, myBarChart;
 
         function toggleModal(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
+
+        function setTheme(t) {
+            conf.theme = t;
+            const th = themes[t];
+            document.documentElement.style.setProperty('--bg', th.bg);
+            document.documentElement.style.setProperty('--primary', th.primary);
+            document.documentElement.style.setProperty('--accent', th.accent);
+            document.documentElement.style.setProperty('--text', th.text);
+            document.body.style.backgroundColor = th.bg;
+            document.body.style.color = th.text;
+            setT(curT);
+        }
+
+        function setLang(l) {
+            conf.lang = l;
+            updateUI();
+        }
+
+        function updateUI() {
+            document.querySelectorAll('[data-k]').forEach(el => {
+                el.innerText = lang[conf.lang][el.getAttribute('data-k')];
+            });
+            document.getElementById('nt').placeholder = lang[conf.lang].note;
+            document.getElementById('lTH').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'th' ? 'bg-stone-800 text-white' : 'bg-white'}`;
+            document.getElementById('lEN').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'en' ? 'bg-stone-800 text-white' : 'bg-white'}`;
+        }
 
         function saveConf() {
             conf.budget = parseFloat(document.getElementById('confB').value) || 20000;
@@ -161,10 +221,13 @@
 
         function setT(t) {
             curT = t;
-            document.getElementById('bI').style.background = t === 'income' ? '#5F7444' : 'transparent';
+            const th = themes[conf.theme];
+            document.getElementById('bI').style.background = t === 'income' ? th.primary : 'transparent';
             document.getElementById('bI').style.color = t === 'income' ? '#fff' : '#9ca3af';
-            document.getElementById('bE').style.background = t === 'expense' ? '#E9967A' : 'transparent';
+            document.getElementById('bE').style.background = t === 'expense' ? th.accent : 'transparent';
             document.getElementById('bE').style.color = t === 'expense' ? '#fff' : '#9ca3af';
+            document.getElementById('inputBox').style.borderTopColor = t === 'income' ? th.primary : th.accent;
+            document.getElementById('sv').style.background = t === 'income' ? th.primary : th.accent;
             renderShorts();
         }
 
@@ -213,37 +276,25 @@
             else if(pct <= 90) fill.style.backgroundColor = '#F97316';
             else fill.style.backgroundColor = '#EF4444';
 
-            renderShortcuts();
+            renderShorts();
         }
 
         function openReport() {
             const thisMonth = new Date().getMonth();
             let mIn = 0, mEx = 0, exCats = {}, inCats = {};
-
             recs.forEach(r => {
                 const rDate = new Date(r.date);
                 if (rDate.getMonth() === thisMonth) {
-                    if(r.type === 'expense') {
-                        mEx += r.amount;
-                        exCats[r.note] = (exCats[r.note] || 0) + r.amount;
-                    } else {
-                        mIn += r.amount;
-                        inCats[r.note] = (inCats[r.note] || 0) + r.amount;
-                    }
+                    if(r.type === 'expense') { mEx += r.amount; exCats[r.note] = (exCats[r.note] || 0) + r.amount; }
+                    else { mIn += r.amount; inCats[r.note] = (inCats[r.note] || 0) + r.amount; }
                 }
             });
-
             document.getElementById('monthInTotal').innerText = `฿${mIn.toLocaleString()}`;
             document.getElementById('monthExTotal').innerText = `฿${mEx.toLocaleString()}`;
-            
-            // Sort Top 5 Lists
             const sortIn = Object.keys(inCats).sort((a,b) => inCats[b] - inCats[a]).slice(0, 5);
             const sortEx = Object.keys(exCats).sort((a,b) => exCats[b] - exCats[a]).slice(0, 5);
-
-            document.getElementById('topInList').innerHTML = sortIn.map(k => `<div class="flex justify-between text-xs p-2 bg-emerald-50/50 rounded-lg"><span>${k}</span><b>฿${inCats[k].toLocaleString()}</b></div>`).join('') || '<p class="text-[9px] opacity-30 px-2">ไม่มีข้อมูลรายรับ</p>';
-            document.getElementById('topExList').innerHTML = sortEx.map(k => `<div class="flex justify-between text-xs p-2 bg-rose-50/50 rounded-lg"><span>${k}</span><b>฿${exCats[k].toLocaleString()}</b></div>`).join('') || '<p class="text-[9px] opacity-30 px-2">ไม่มีข้อมูลรายจ่าย</p>';
-
-            // Bar Chart Update
+            document.getElementById('topInList').innerHTML = sortIn.map(k => `<div class="flex justify-between text-xs p-2 bg-emerald-50/50 rounded-lg"><span>${k}</span><b>฿${inCats[k].toLocaleString()}</b></div>`).join('') || '...';
+            document.getElementById('topExList').innerHTML = sortEx.map(k => `<div class="flex justify-between text-xs p-2 bg-rose-50/50 rounded-lg"><span>${k}</span><b>฿${exCats[k].toLocaleString()}</b></div>`).join('') || '...';
             renderBarChart(sortEx, exCats);
             toggleModal('reportModal', true);
         }
@@ -252,27 +303,8 @@
             const ctx = document.getElementById('reportBarChart').getContext('2d');
             if (myBarChart) myBarChart.destroy();
             myBarChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'จำนวนเงิน (฿)',
-                        data: labels.map(l => dataObj[l]),
-                        backgroundColor: '#E9967A',
-                        borderRadius: 8,
-                        barThickness: 25
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        x: { display: false, grid: { display: false } },
-                        y: { grid: { display: false }, ticks: { font: { family: 'Prompt', size: 10 } } }
-                    }
-                }
+                type: 'bar', data: { labels: labels, datasets: [{ data: labels.map(l => dataObj[l]), backgroundColor: themes[conf.theme].accent, borderRadius: 8 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { font: { family: 'Prompt', size: 10 } } } } }
             });
         }
 
@@ -283,7 +315,6 @@
             document.getElementById('gP').innerText = gPct.toFixed(1) + '%';
             document.getElementById('gF').style.width = Math.min(gPct, 100) + '%';
             document.getElementById('gS').innerText = `อีก ฿${Math.max(conf.goal - net, 0).toLocaleString()} ถึงเป้าหมาย`;
-            
             const names = {dime:'🟢 Dime', webull:'🔵 Webull', pvd:'💎 P. Fund', cash:'🟡 Cash'};
             document.getElementById('portInputs').innerHTML = Object.keys(port).map(k => `
                 <div class="card p-4 flex justify-between items-center border-l-[6px] border-stone-200">
@@ -291,8 +322,7 @@
                     <input type="number" onchange="upP('${k}',this.value)" value="${port[k]}" class="text-right font-bold w-1/2 outline-none">
                 </div>
             `).join('');
-
-            document.getElementById('phList').innerHTML = phist.map((h, i) => `<div class="card p-4 flex justify-between items-center text-xs"><span>${h.date}</span><div class="flex items-center gap-4"><b>฿${h.total.toLocaleString()}</b><button onclick="phist.splice(${i},1);localStorage.setItem('atp_hist',JSON.stringify(phist));renderP()" class="text-stone-200">✕</button></div></div>`).join('');
+            document.getElementById('phList').innerHTML = phist.map((h, i) => `<div class="card p-4 flex justify-between items-center text-xs"><span>${h.date}</span><div class="flex items-center gap-4"><b>฿${h.total.toLocaleString()}</b><button onclick="delPH(${i})" class="text-stone-200">✕</button></div></div>`).join('');
         }
 
         function renderPC() {
@@ -309,16 +339,19 @@
             if(p === 'p') { renderP(); renderPC(); }
         }
 
-        function delR(i) { if(confirm('ลบรายการนี้?')) { recs.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(recs)); renderW(); } }
+        function delR(i) { if(confirm('ลบ?')) { recs.splice(i, 1); localStorage.setItem('atp_recs', JSON.stringify(recs)); renderW(); } }
+        function delPH(i) { if(confirm('ลบ?')) { phist.splice(i, 1); localStorage.setItem('atp_hist', JSON.stringify(phist)); renderP(); } }
         function upP(k, v) { port[k] = parseFloat(v) || 0; localStorage.setItem('atp_port', JSON.stringify(port)); renderP(); renderPC(); }
         function snap() { phist.unshift({ date: new Date().toLocaleDateString(), total: Object.values(port).reduce((a, b) => a + b, 0) }); localStorage.setItem('atp_hist', JSON.stringify(phist)); renderP(); }
         function sU() { localStorage.setItem('atp_usr', document.getElementById('uN').innerText); }
 
+        // Initial Boot
         document.getElementById('rD').valueAsDate = new Date();
         document.getElementById('confB').value = conf.budget;
         document.getElementById('confG').value = conf.goal;
         document.getElementById('uN').innerText = localStorage.getItem('atp_usr') || 'My Wallet';
-        setT('expense');
+        setTheme(conf.theme);
+        updateUI();
         renderW();
     </script>
 </body>
