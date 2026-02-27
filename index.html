@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Money Pro Analytics</title>
+    <title>Money Pro - Monthly Analytics</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%235F7444%22 rx=%2220%22/><text y=%22.75em%22 x=%225%22 font-size=%2270%22>💰</text></svg>">
@@ -22,6 +22,8 @@
         .progress-fill { height: 100%; transition: width 0.6s ease, background-color 0.4s; }
         .theme-dot { width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .month-btn { padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: bold; background: rgba(0,0,0,0.05); color: #999; flex-shrink: 0; }
+        .month-btn.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body class="pb-24">
@@ -32,7 +34,6 @@
                 <h3 class="font-bold text-lg" data-k="settings">ตั้งค่า</h3>
                 <button onclick="toggleModal('setModal', false)" class="text-xl">✕</button>
             </div>
-            
             <div class="space-y-2">
                 <label class="text-[10px] font-bold opacity-40 uppercase" data-k="langTitle">ภาษา / Language</label>
                 <div class="flex gap-2">
@@ -40,7 +41,6 @@
                     <button onclick="setLang('en')" id="lEN" class="flex-1 py-2 rounded-xl border font-bold text-xs">EN</button>
                 </div>
             </div>
-
             <div class="space-y-2">
                 <label class="text-[10px] font-bold opacity-40 uppercase" data-k="themeTitle">ธีมสี / Theme</label>
                 <div class="grid grid-cols-6 gap-2">
@@ -52,7 +52,6 @@
                     <div onclick="setTheme('midnight')" class="theme-dot" style="background: #013137;"></div>
                 </div>
             </div>
-
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold opacity-40 uppercase" data-k="setBud">งบรายเดือน</label>
@@ -73,14 +72,17 @@
                 <h3 class="font-bold text-lg" data-k="analytics">วิเคราะห์การเงิน</h3>
                 <button onclick="toggleModal('reportModal', false)" class="text-xl">✕</button>
             </div>
+
+            <div id="monthSelector" class="flex gap-2 overflow-x-auto no-scrollbar py-2 border-b"></div>
+
             <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                        <p class="text-[9px] font-bold text-emerald-700 opacity-60 uppercase" data-k="monthIn">รายรับเดือนนี้</p>
+                        <p class="text-[9px] font-bold text-emerald-700 opacity-60 uppercase" data-k="monthIn">รายรับ</p>
                         <p id="monthInTotal" class="text-lg font-bold text-emerald-600">฿0</p>
                     </div>
                     <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                        <p class="text-[9px] font-bold text-rose-700 opacity-60 uppercase" data-k="monthEx">รายจ่ายเดือนนี้</p>
+                        <p class="text-[9px] font-bold text-rose-700 opacity-60 uppercase" data-k="monthEx">รายจ่าย</p>
                         <p id="monthExTotal" class="text-lg font-bold text-rose-600">฿0</p>
                     </div>
                 </div>
@@ -150,10 +152,7 @@
             <p class="text-[10px] opacity-50 font-bold uppercase tracking-widest">Total Net Worth</p>
             <h3 id="nW" class="text-4xl font-bold">฿0</h3>
             <div class="mt-8 pt-6 border-t border-white/10">
-                <div class="flex justify-between text-[10px] mb-2 font-bold uppercase">
-                    <span class="opacity-50 tracking-widest">Goal Progress</span>
-                    <span id="gP">0%</span>
-                </div>
+                <div class="flex justify-between text-[10px] mb-2 font-bold uppercase"><span class="opacity-50 tracking-widest">Goal Progress</span><span id="gP">0%</span></div>
                 <div class="progress-bar bg-white/10"><div id="gF" class="progress-fill bg-emerald-400" style="width: 0%"></div></div>
                 <p id="gS" class="text-[9px] mt-3 opacity-40 font-medium"></p>
             </div>
@@ -175,8 +174,8 @@
         };
 
         const lang = {
-            th: { settings: 'ตั้งค่า', langTitle: 'ภาษา', themeTitle: 'ธีมสี', setBud: 'งบรายเดือน', setGoal: 'เป้าหมายเงินเก็บ', save: 'บันทึก', analytics: 'วิเคราะห์การเงิน', monthIn: 'รายรับเดือนนี้', monthEx: 'รายจ่ายเดือนนี้', totalB: 'ยอดเงินรวมคงเหลือ', budTrack: 'การใช้จ่าย', income: 'รายรับ', expense: 'รายจ่าย', note: 'บันทึกรายละเอียด...' },
-            en: { settings: 'Settings', langTitle: 'Language', themeTitle: 'Theme', setBud: 'Monthly Budget', setGoal: 'Savings Goal', save: 'Save', analytics: 'Analytics', monthIn: 'Monthly Income', monthEx: 'Monthly Expense', totalB: 'Total Balance', budTrack: 'Spending Tracker', income: 'Income', expense: 'Expense', note: 'Note details...' }
+            th: { settings: 'ตั้งค่า', langTitle: 'ภาษา', themeTitle: 'ธีมสี', setBud: 'งบรายเดือน', setGoal: 'เป้าหมายเงินเก็บ', save: 'บันทึก', analytics: 'วิเคราะห์การเงิน', monthIn: 'รายรับ', monthEx: 'รายจ่าย', totalB: 'ยอดเงินรวมคงเหลือ', budTrack: 'การใช้จ่าย', income: 'รายรับ', expense: 'รายจ่าย', note: 'บันทึกรายละเอียด...', months: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'] },
+            en: { settings: 'Settings', langTitle: 'Language', themeTitle: 'Theme', setBud: 'Monthly Budget', setGoal: 'Savings Goal', save: 'Save', analytics: 'Analytics', monthIn: 'Income', monthEx: 'Expense', totalB: 'Total Balance', budTrack: 'Spending Tracker', income: 'Income', expense: 'Expense', note: 'Note details...', months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] }
         };
 
         let recs = JSON.parse(localStorage.getItem('atp_recs')) || [];
@@ -184,10 +183,11 @@
         let phist = JSON.parse(localStorage.getItem('atp_hist')) || [];
         let shorts = JSON.parse(localStorage.getItem('atp_shorts')) || { income: [], expense: [] };
         let conf = JSON.parse(localStorage.getItem('atp_conf')) || { budget: 20000, goal: 1000000, theme: 'classic', lang: 'th' };
+        let selectedMonth = new Date().getMonth();
         let curT = 'expense';
         let myChart, myBarChart;
 
-        function toggleModal(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
+        function toggleModal(id, show) { document.getElementById(id).classList.toggle('hidden', !show); if(id==='reportModal' && show) renderMonthSelector(); }
 
         function setTheme(t) {
             conf.theme = t;
@@ -204,7 +204,10 @@
         function setLang(l) { conf.lang = l; updateUI(); }
 
         function updateUI() {
-            document.querySelectorAll('[data-k]').forEach(el => { el.innerText = lang[conf.lang][el.getAttribute('data-k')]; });
+            document.querySelectorAll('[data-k]').forEach(el => { 
+                const key = el.getAttribute('data-k');
+                if(lang[conf.lang][key]) el.innerText = lang[conf.lang][key]; 
+            });
             document.getElementById('nt').placeholder = lang[conf.lang].note;
             document.getElementById('lTH').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'th' ? 'bg-stone-800 text-white' : 'bg-white'}`;
             document.getElementById('lEN').className = `flex-1 py-2 rounded-xl border font-bold text-xs ${conf.lang === 'en' ? 'bg-stone-800 text-white' : 'bg-white'}`;
@@ -232,7 +235,7 @@
 
         function renderShorts() {
             const area = document.getElementById('sList');
-            area.innerHTML = shorts[curT].map(s => `<button onclick="document.getElementById('nt').value='${s}'" class="shortcut-btn">${s}</button>`).join('');
+            area.innerHTML = (shorts[curT] || []).map(s => `<button onclick="document.getElementById('nt').value='${s}'" class="shortcut-btn">${s}</button>`).join('');
         }
 
         function addD() {
@@ -255,7 +258,8 @@
             const list = document.getElementById('hList'); list.innerHTML = '';
             recs.forEach((r, i) => {
                 total += (r.type === 'income' ? r.amount : -r.amount);
-                if(r.type === 'expense' && new Date(r.date).getMonth() === thisM) monthlyExp += r.amount;
+                const rDate = new Date(r.date);
+                if(r.type === 'expense' && rDate.getMonth() === thisM && rDate.getFullYear() === new Date().getFullYear()) monthlyExp += r.amount;
                 list.innerHTML += `<div class="card p-5 flex justify-between items-center shadow-sm border-r-4 ${r.type==='income'?'border-emerald-400':'border-rose-400'}"><div class="flex flex-col"><span class="text-xs font-bold">${r.note}</span><span class="text-[9px] opacity-30 mt-1">${r.date}</span></div><div class="flex items-center gap-4"><span class="font-bold text-sm ${r.type==='income'?'text-emerald-500':'text-rose-500'}">${r.type==='income'?'+':'-'}${r.amount.toLocaleString()}</span><button onclick="delR(${i})" class="text-stone-200">✕</button></div></div>`;
             });
             document.getElementById('total').innerText = '฿' + total.toLocaleString();
@@ -272,22 +276,44 @@
             renderShorts();
         }
 
+        function renderMonthSelector() {
+            const container = document.getElementById('monthSelector');
+            const months = lang[conf.lang].months;
+            container.innerHTML = months.map((m, i) => `
+                <button onclick="changeMonth(${i})" class="month-btn ${selectedMonth === i ? 'active' : ''}">${m}</button>
+            `).join('');
+            // Scroll to selected
+            const activeBtn = container.children[selectedMonth];
+            if(activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        function changeMonth(m) {
+            selectedMonth = m;
+            renderMonthSelector();
+            openReport();
+        }
+
         function openReport() {
-            const thisMonth = new Date().getMonth();
             let mIn = 0, mEx = 0, exCats = {}, inCats = {};
+            const thisYear = new Date().getFullYear();
+
             recs.forEach(r => {
                 const rDate = new Date(r.date);
-                if (rDate.getMonth() === thisMonth) {
+                if (rDate.getMonth() === selectedMonth && rDate.getFullYear() === thisYear) {
                     if(r.type === 'expense') { mEx += r.amount; exCats[r.note] = (exCats[r.note] || 0) + r.amount; }
                     else { mIn += r.amount; inCats[r.note] = (inCats[r.note] || 0) + r.amount; }
                 }
             });
+
             document.getElementById('monthInTotal').innerText = `฿${mIn.toLocaleString()}`;
             document.getElementById('monthExTotal').innerText = `฿${mEx.toLocaleString()}`;
+            
             const sortIn = Object.keys(inCats).sort((a,b) => inCats[b] - inCats[a]).slice(0, 5);
             const sortEx = Object.keys(exCats).sort((a,b) => exCats[b] - exCats[a]).slice(0, 5);
-            document.getElementById('topInList').innerHTML = sortIn.map(k => `<div class="flex justify-between text-xs p-2 bg-emerald-50/50 rounded-lg"><span>${k}</span><b>฿${inCats[k].toLocaleString()}</b></div>`).join('') || '...';
-            document.getElementById('topExList').innerHTML = sortEx.map(k => `<div class="flex justify-between text-xs p-2 bg-rose-50/50 rounded-lg"><span>${k}</span><b>฿${exCats[k].toLocaleString()}</b></div>`).join('') || '...';
+            
+            document.getElementById('topInList').innerHTML = sortIn.map(k => `<div class="flex justify-between text-xs p-2 bg-emerald-50/50 rounded-lg"><span>${k}</span><b>฿${inCats[k].toLocaleString()}</b></div>`).join('') || '<p class="text-[9px] opacity-30 px-2">ไม่มีข้อมูล</p>';
+            document.getElementById('topExList').innerHTML = sortEx.map(k => `<div class="flex justify-between text-xs p-2 bg-rose-50/50 rounded-lg"><span>${k}</span><b>฿${exCats[k].toLocaleString()}</b></div>`).join('') || '<p class="text-[9px] opacity-30 px-2">ไม่มีข้อมูล</p>';
+            
             renderBarChart(sortEx, exCats);
             toggleModal('reportModal', true);
         }
